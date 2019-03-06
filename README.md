@@ -7,11 +7,16 @@ The project has 2 objectives:-
 ## Dataset
 
 train = [emnist-balanced-train.csv](https://www.kaggle.com/crawford/emnist/downloads/emnist-balanced-train.csv/3)
+
 test = [emnist-balanced-test.csv](https://www.kaggle.com/crawford/emnist/downloads/emnist-balanced-test.csv/3)
 
-## Dependencies (Python 3.6)
+## Dependencies (Python **3.6**)
 
-```sudo pip install -r requirements.txt```
+```pip install -r requirements.txt```
+
+## Model file
+
+```train.py```
 
 ## Run the app
 
