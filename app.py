@@ -1,20 +1,16 @@
-from flask import Flask, render_template,request
+from flask import Flask, render_template, request
 from scipy.misc import imsave, imread, imresize
 import numpy as np
 import keras.models
 import re, sys, os, base64
+from io import StringIO, BytesIO
+from PIL import Image
 
 sys.path.append(os.path.abspath("./model"))
 from load import * 
 app = Flask(__name__)
 global model, graph
 model, graph = init()
-
-def convertImage(imgData1):
-	imgstr = re.search(b'base64,(.*)',imgData1).group(1)
-	with open('output.png','wb') as output:
-		# output.write(imgstr.decode('base64'))
-		output.write(base64.b64decode(imgstr))
 	
 
 @app.route('/')
@@ -26,22 +22,20 @@ class_mapping = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabdefghnqrt'
 @app.route('/predict/',methods=['GET','POST'])
 def predict():
 	imgData = request.get_data()
-	#encode it into a suitable format
-	convertImage(imgData)
-	#read the image into memory
-	x = imread('output.png',mode='L')
-	#compute a bit-wise inversion so black becomes white and vice versa
-	x = np.invert(x)
-	#make it the right size
+	imgstr = re.search(b'base64,(.*)',imgData).group(1)
+	img_bytes = base64.b64decode(imgstr)
+	img = Image.open(BytesIO(img_bytes)).convert('L')
+	x  = np.array(img)
+
 	x = imresize(x,(28,28))
-	#imshow(x)
+	x = np.invert(x)
 	#convert to a 4D tensor to feed into our model
 	x = x.reshape(1,28,28,1)
 	#in our computation graph
 	with graph.as_default():
 		#perform the prediction
 		out = model.predict(x)
-		print(out)
+		# print(out)
 		index = np.argmax(out,axis=1)[0]
 		print(index)
 		return class_mapping[index]	
